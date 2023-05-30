@@ -1,8 +1,7 @@
 import { Router } from "express";
-
 import { MatchController } from "../controllers";
-const routes = Router();
 
+const routes = Router();
 
 routes.get("/", MatchController.getAllMatches)
 routes.get("/:uuid", MatchController.getUuid)

@@ -8,7 +8,7 @@ const AppDataSource = new DataSource({
     type: "postgres", // se for SQLite, então use sqlite
     url: process.env.URL, // não use esta propriedade se for sqlite
     port: 5432, // não use esta propriedade se for sqlite
-    username: 'cjrqdavq', // não use esta propriedade se for sqlite
+    username: 'ztsogydw', // não use esta propriedade se for sqlite
     password: process.env.SENHA, // não use esta propriedade se for sqlite
     synchronize: false,
     logging: false, // true indica que as consultas e erros serão exibidas no terminal
