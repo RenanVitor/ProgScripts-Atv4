@@ -1,60 +1,76 @@
 import AppDataSource from "../data-source";
 import { Request, Response } from 'express';
-import { Team } from '../entities/Teams';
+
+import { Team } from "../entities/Teams";
+
 
 class TeamController {
-  public async getAllTeam(req: Request, res: Response): Promise<Response> {
-    const teamRepository = AppDataSource.getRepository(Team)
-    const allTeam = await teamRepository.find({ order: {name: "ASC"} })
-    return res.json(allTeam)
-  }
 
-  public async getTermo(req: Request, res: Response){
-    let termoTeam = req.params.termo
-    const teamRepository = AppDataSource.getRepository(Team)
-     .createQueryBuilder("team")
-     .where("team.name like :name", { name:`%${termoTeam}%` })
-     .getMany()
-    return res.json(await teamRepository)
-  }
 
-  public async postTeam(req: Request, res: Response): Promise<Response> {
-    try{
-      const createTeam = req.body
-      const teamRepository = AppDataSource.getRepository(Team)
-      const insertTeam = new Team();
-      insertTeam.name = createTeam.name;
-      const allTeam = await teamRepository.save(insertTeam)
-      return res.json(allTeam)
-
-    }catch{
-      return res.json({error: "O nome já existe"})
-    }
-  }
-  
-  public async deleteTeam(req: Request, res: Response): Promise<Response> {
-    try{
-      const idTeam: any = req.params.uuid
-      const teamRepository = AppDataSource.getRepository(Team)
-      const findTeam = await teamRepository.findOneBy({ id: idTeam })
-      await teamRepository.remove(findTeam)
-      return res.json({ "raw": [], "affected": 1 })
-
-    }catch{
-      return res.json({ "raw": [], "affected": 0 })
+  public async getAllTeams(req: Request, res: Response): Promise<Response> {
+    try {
+      const teamsRepository = AppDataSource.getRepository(Team)
+        .createQueryBuilder("team")
+        .orderBy("team.name", "ASC")
+        .getMany()
+      return res.json((await teamsRepository))
+    } catch (err) {
+      return res.json({ erro: "Não foi possivel pegar os teams" })
     }
   }
 
-  public async putTeam(req: Request, res: Response): Promise<Response> {
-    const createTeam = req.body
-    const idTeam: any = req.params.uuid
-    const teamRepository = AppDataSource.getRepository(Team)
-    const findTeam = await teamRepository.findOneBy({ id: idTeam })
-    findTeam.name = createTeam.name
-    const allTeam = await teamRepository.save(findTeam)
-    return res.json(allTeam)
+  public async getTermoTeams(req: Request, res: Response): Promise<Response> {
+    try {
+      const termo: any = req.params.termo
+      const teamsRepository = AppDataSource.getRepository(Team)
+        .createQueryBuilder("time")
+        .where("time.name like :name", { name: `%${termo}%` })
+        //.orderBy("team.name", "ASC")
+        .getMany()
+      return res.json((await teamsRepository))
+    } catch (err) {
+      return res.json({ erro: "Não foi possivel pegar os teams" })
+    }
+  }
+
+  public async postTeams(req: Request, res: Response): Promise<Response> {
+    try {
+      const create = req.body
+      const teamsRepository = AppDataSource.getRepository(Team)
+      const insert = new Team();
+      insert.name = create.name.replace(/(^\w{1})|(\s+\w{1})/g, letra => letra.toUpperCase());
+      const all = await teamsRepository.save(insert)
+      return res.json(all)
+    } catch (err) {
+      return res.json({ error: "O nome já existe" })
+    }
+  }
+
+  public async putTeams(req: Request, res: Response): Promise<Response> {
+    try {
+      const create = req.body
+      const teamsRepository = AppDataSource.getRepository(Team)
+      const find = await teamsRepository.findOneBy({ id: create.id })
+      find.name = create.name.replace(/(^\w{1})|(\s+\w{1})/g, letra => letra.toUpperCase());
+      const all = await teamsRepository.save(find)
+      return res.json(all)
+    } catch (err) {
+      return res.json({ error: "O nome já existe" })
+    }
+  }
+
+  public async deleteTeams(req: Request, res: Response): Promise<Response> {
+    try {
+      const create = req.body
+      const teamsRepository = AppDataSource.getRepository(Team)
+      const find = await teamsRepository.findOneBy({ id: create.id })
+
+      const all = await teamsRepository.delete(find)
+      return res.json(all)
+    } catch (err) {
+      return res.json({ raw: [], affected: 0 })
+    }
   }
 
 }
-
 export default new TeamController();
